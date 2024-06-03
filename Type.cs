@@ -101,7 +101,7 @@ class Int32Option(ConfigEntry<int> entry) : IntFieldOption(entry) { }
 
 class Int32SliderOption(ConfigEntry<int> entry) : IntSliderOption(entry, Initialize(entry))
 {
-	private static IntSliderConfig Initialize(ConfigEntry<int> entry)
+	static IntSliderConfig Initialize(ConfigEntry<int> entry)
 	{
 		var config = new IntSliderConfig() { min = int.MinValue, max = int.MaxValue };
 

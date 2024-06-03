@@ -93,7 +93,7 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 
 		public override void Enable() => OnStateChanged(true);
 
-		private void OnStateChanged(bool enabled)
+		void OnStateChanged(bool enabled)
 		{
 			Transform transform = slider.transform;
 			Color color = enabled ? slider.colors.normalColor : slider.colors.disabledColor;
@@ -112,7 +112,7 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 
 		public override void Disable() => OnStateChanged(false);
 
-		public void OnSliderValueChanged(float value)
+		void OnSliderValueChanged(float value)
 		{
 			if ( ! InUpdateControls )
 				SubmitValue((T) Convert.ChangeType(value, typeof(T)));

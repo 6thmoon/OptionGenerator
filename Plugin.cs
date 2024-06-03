@@ -5,15 +5,20 @@ using HarmonyLib;
 using RiskOfOptions.Components.Panel;
 using RiskOfOptions.Containers;
 using RiskOfOptions.Options;
+using RoR2;
 using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Security.Permissions;
 using UnityEngine;
+using Console = System.Console;
+using DependencyFlags = BepInEx.BepInDependency.DependencyFlags;
 using Language = RoR2.Language;
+using Path = System.IO.Path;
 using Settings = RiskOfOptions.ModSettingsManager;
 
 [assembly: AssemblyVersion(Local.Option.Generator.Plugin.version)]
@@ -22,10 +27,26 @@ using Settings = RiskOfOptions.ModSettingsManager;
 namespace Local.Option.Generator;
 
 [BepInPlugin(identifier, "OptionGenerator", version)]
-class Plugin : BaseUnityPlugin
+[BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID, DependencyFlags.HardDependency)]
+public class Plugin : BaseUnityPlugin
 {
-	public const string version = "0.1.0", identifier = "local.option.generator";
-	protected void Awake() => Harmony.CreateAndPatchAll(typeof(Plugin));
+	public const string version = "0.1.1", identifier = "local.option.generator";
+
+	static ConfigFile configuration;
+	const string section = "Enabled";
+
+	protected void Awake()
+	{
+		Harmony.CreateAndPatchAll(typeof(Plugin));
+		configuration = Config;
+
+		RoR2Application.onLoad += ( ) =>
+		{
+			foreach ( PluginInfo info in Chainloader.PluginInfos.Values )
+				configuration.Bind(section, info.Metadata.GUID, true,
+						"If option menu should be generated for '" + info.Metadata.Name + "'.");
+		};
+	}
 
 	[HarmonyPatch(typeof(ModOptionPanelController), nameof(ModOptionPanelController.Start))]
 	[HarmonyPrefix]
@@ -34,6 +55,13 @@ class Plugin : BaseUnityPlugin
 		foreach ( PluginInfo info in Chainloader.PluginInfos.Values )
 		{
 			string identifier = info.Metadata.GUID, name = info.Metadata.Name;
+
+			configuration.TryGetEntry(section, identifier, out ConfigEntry<bool> enabled);
+			if ( enabled?.Value is false )
+			{
+				RemoveOption(identifier);
+				continue;
+			}
 
 			foreach ( ConfigFile configuration in ScanForConfig(info.Instance) )
 				foreach ( ConfigDefinition definition in configuration.Keys )
@@ -55,7 +83,7 @@ class Plugin : BaseUnityPlugin
 		}
 	}
 
-	private static IEnumerable<ConfigFile> ScanForConfig(BaseUnityPlugin instance)
+	static IEnumerable<ConfigFile> ScanForConfig(BaseUnityPlugin instance)
 	{
 		HashSet<ConfigFile> result = [ instance.Config ];
 
@@ -137,7 +165,6 @@ class Plugin : BaseUnityPlugin
 
 		if ( type is null )
 		{
-
 			Console.WriteLine("No option for type " + entry.GetType());
 			return null;
 		}
@@ -158,14 +185,20 @@ class Plugin : BaseUnityPlugin
 		const int size = 256, scale = 2;
 		Texture2D texture = new(size, size, TextureFormat.ARGB32, scale + 1, linear: false);
 
-		if ( ImageConversion.LoadImage(texture, File.ReadAllBytes(path)) )
+		try
 		{
-			Sprite icon = Sprite.Create(
-					texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-
-			Settings.SetModIcon(icon, option.ModGuid, option.ModName);
+			if ( ! ImageConversion.LoadImage(texture, File.ReadAllBytes(path)) )
+				throw new Exception();
 		}
-		else Console.WriteLine("Unable to load '" + path + "'");
+		catch
+		{
+			Console.WriteLine("Unable to load '" + path + "'\n");
+			return;
+		}
+
+		Sprite icon = Sprite.Create(
+				texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+		Settings.SetModIcon(icon, option.ModGuid, option.ModName);
 	}
 
 	static void SetDescription(PluginInfo info)
@@ -203,6 +236,19 @@ class Plugin : BaseUnityPlugin
 
 		option = null;
 		return false;
+	}
+
+	static void RemoveOption(string identifier)
+	{
+		if ( Settings.OptionCollection.ContainsModGuid(identifier) )
+		{
+			var list = Settings.OptionCollection._identifierModGuidMap.ToArray();
+			Settings.OptionCollection._optionCollections.Remove(identifier);
+
+			foreach ( KeyValuePair<string, string> element in list )
+				if ( identifier == element.Value )
+					Settings.OptionCollection._identifierModGuidMap.Remove(element.Key);
+		}
 	}
 
 	static bool FindPath(PluginInfo info, string filename, out string path)
