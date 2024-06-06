@@ -6,6 +6,7 @@ using RoR2.UI;
 using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,7 +17,7 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 		where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
 {
 	public override ConfigEntryBase ConfigEntry => entry;
-	readonly T originalValue = entry.Value;
+	readonly T original = entry.Value;
 
 	protected GameObject CreateOptionGameObject<X>(
 			GameObject prefab, Transform parent, out X field) where X : Field
@@ -47,8 +48,8 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 	}
 
 	public T Value { get => entry.Value; set => entry.Value = value; }
-	public T GetOriginalValue() => originalValue;
-	public bool ValueChanged() => ! Value.Equals(GetOriginalValue());
+	public T GetOriginalValue() => original;
+	public bool ValueChanged() => ! entry.Value.Equals(original);
 
 	public override string OptionTypeName { get; set;
 			} = typeof(T).Name.ToLowerInvariant() + "_field";
@@ -112,7 +113,7 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 
 		public override void Disable() => OnStateChanged(false);
 
-		void OnSliderValueChanged(float value)
+		protected virtual void OnSliderValueChanged(float value)
 		{
 			if ( ! InUpdateControls )
 				SubmitValue((T) Convert.ChangeType(value, typeof(T)));
@@ -127,8 +128,86 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 			valueText.text = string.Format(Separator.GetCultureInfo(), formatString, value);
 		}
 
-		public void MoveSlider(float delta) => slider.normalizedValue += delta;
+		protected void MoveSlider(float delta) => slider.normalizedValue += delta;
 	}
 
-	public override BaseOptionConfig GetConfig() => new();
+	public override BaseOptionConfig GetConfig() => configuration;
+	readonly BaseOptionConfig configuration = new();
+}
+
+class ListOption(ConfigEntryBase entry, object[] choices) : BaseOption, ITypedValueHolder<object>
+{
+	public override ConfigEntryBase ConfigEntry => entry;
+	readonly object original = entry.BoxedValue;
+
+	public override GameObject CreateOptionGameObject(GameObject prefab, Transform parent)
+	{
+		GameObject obj = GameObject.Instantiate(prefab, parent);
+		GameObject.DestroyImmediate(obj.GetComponent<DropDownController>());
+
+		var controller = obj.AddComponent<Controller>();
+		controller.name = "Mod Option " + entry.SettingType.Name + " List, " + Name;
+
+		controller.choices = choices;
+		controller.index = Array.IndexOf(choices, entry.BoxedValue);
+
+		controller.nameLabel = obj.GetComponentInChildren<LanguageTextMeshController>();
+		controller.nameLabel.token = controller.nameToken = GetNameToken();
+
+		controller.settingToken = Identifier;
+		return obj;
+	}
+
+	public object Value { get => entry.BoxedValue; set => entry.BoxedValue = value; }
+	public object GetOriginalValue() => original;
+	public bool ValueChanged() => ! entry.BoxedValue.Equals(original);
+
+	public override string OptionTypeName { get; set;
+			} = entry.SettingType.Name.ToLowerInvariant() + "_list";
+
+	class Controller : ModSettingsControl<object>
+	{
+		internal object[] choices;
+		internal int index;
+
+		public override void Awake()
+		{
+			dropdown = GetComponentInChildren<RooDropdown>();
+			base.Awake();
+
+			dropdown.OnValueChanged.AddListener(OnChoiceChanged);
+		}
+
+		RooDropdown dropdown;
+
+		public override void Enable() => OnStateChanged(true);
+
+		void OnStateChanged(bool enabled)
+		{
+			dropdown.interactable = enabled;
+			foreach ( var button in GetComponentsInChildren<HGButton>() )
+				button.interactable = enabled;
+		}
+
+		public override void Disable() => OnStateChanged(false);
+
+		protected new void OnEnable()
+		{
+			base.OnEnable();
+
+			dropdown.choices = choices.Select( element => element.ToString() ).ToArray();
+			UpdateControls();
+		}
+
+		void OnChoiceChanged(int index) => SubmitValue(choices[this.index = index]);
+
+		public override void OnUpdateControls()
+		{
+			base.OnUpdateControls();
+			dropdown.SetChoice(index);
+		}
+	}
+
+	public override BaseOptionConfig GetConfig() => configuration;
+	readonly BaseOptionConfig configuration = new();
 }

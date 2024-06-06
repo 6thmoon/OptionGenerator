@@ -1,0 +1,11 @@
+{
+	"name": "OptionGenerator",
+	"version_number": "0.1.2",
+	"website_url": "https://github.com/6thmoon/OptionGenerator",
+	"description":
+		"Automatic option menu integration via \"Risk of Options\".",
+	"dependencies": [
+			"bbepis-BepInExPack-5.4.2100",
+			"Rune580-Risk_Of_Options-2.8.0"
+		]
+}

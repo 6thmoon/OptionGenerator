@@ -30,10 +30,8 @@ namespace Local.Option.Generator;
 [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID, DependencyFlags.HardDependency)]
 public class Plugin : BaseUnityPlugin
 {
-	public const string version = "0.1.1", identifier = "local.option.generator";
-
-	static ConfigFile configuration;
-	const string section = "Enabled";
+	public const string version = "0.1.2", identifier = "local.option.generator";
+	static ConfigFile configuration; const string section = "Enabled";
 
 	protected void Awake()
 	{
@@ -124,7 +122,19 @@ public class Plugin : BaseUnityPlugin
 
 	static BaseOption CreateOption(ConfigEntryBase entry)
 	{
-		Type type = entry.Description.AcceptableValues switch
+		AcceptableValueBase valid = entry.Description.AcceptableValues;
+		Type type = valid?.GetType(), target = typeof(AcceptableValueList<>);
+
+		if ( type?.IsGenericType is true && type.GetGenericTypeDefinition() == target )
+		{
+			MethodInfo method = target.MakeGenericType(valid.ValueType).GetProperty(
+					nameof(AcceptableValueList<byte>.AcceptableValues)
+				).GetMethod;
+
+			Array result = method.Invoke(valid, null) as Array;
+			return new ListOption(entry, result.Cast<object>().ToArray());
+		}
+		else type = valid switch
 		{
 			AcceptableValueRange<sbyte> => typeof(SByteSliderOption),
 			AcceptableValueRange<byte> => typeof(ByteSliderOption),
@@ -137,8 +147,6 @@ public class Plugin : BaseUnityPlugin
 			AcceptableValueRange<float> => typeof(SingleSliderOption),
 			AcceptableValueRange<double> => typeof(DoubleSliderOption),
 			AcceptableValueRange<decimal> => typeof(DecimalSliderOption),
-
-//			AcceptableValueList<string> => typeof(StringListOption),
 
 			_ => entry switch
 			{
@@ -317,6 +325,11 @@ public class Plugin : BaseUnityPlugin
 			SingleSliderOption => true,
 			DoubleSliderOption => true,
 			DecimalSliderOption => true,
+			_ => false
+		},
+		_ when type == typeof(ChoiceOption) => obj switch
+		{
+			ListOption => true,
 			_ => false
 		},
 		_ => false
