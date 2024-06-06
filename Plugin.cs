@@ -41,8 +41,8 @@ public class Plugin : BaseUnityPlugin
 		RoR2Application.onLoad += ( ) =>
 		{
 			foreach ( PluginInfo info in Chainloader.PluginInfos.Values )
-				configuration.Bind(section, info.Metadata.GUID, true,
-						"If option menu should be generated for '" + info.Metadata.Name + "'.");
+				configuration.Bind(section, info.Metadata.GUID, true, "If option menu " +
+						"should be generated for \"" + info.Metadata.Name + "\".");
 		};
 	}
 

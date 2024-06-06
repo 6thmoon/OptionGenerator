@@ -135,7 +135,7 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 	readonly BaseOptionConfig configuration = new();
 }
 
-class ListOption(ConfigEntryBase entry, object[] choices) : BaseOption, ITypedValueHolder<object>
+class ListOption(ConfigEntryBase entry, object[] list) : BaseOption, ITypedValueHolder<object>
 {
 	public override ConfigEntryBase ConfigEntry => entry;
 	readonly object original = entry.BoxedValue;
@@ -148,8 +148,8 @@ class ListOption(ConfigEntryBase entry, object[] choices) : BaseOption, ITypedVa
 		var controller = obj.AddComponent<Controller>();
 		controller.name = "Mod Option " + entry.SettingType.Name + " List, " + Name;
 
-		controller.choices = choices;
-		controller.index = Array.IndexOf(choices, entry.BoxedValue);
+		controller.choices = list;
+		controller.index = Array.IndexOf(list, entry.BoxedValue);
 
 		controller.nameLabel = obj.GetComponentInChildren<LanguageTextMeshController>();
 		controller.nameLabel.token = controller.nameToken = GetNameToken();
