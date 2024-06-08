@@ -2,7 +2,7 @@
 
 For more information please consult the **[Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options)** documentation. However, suffice to say it provides a convenient API for adding mod options to the in-game settings menu. While simple to use, much of the content on this site does not support it.
 
-This optional extension takes care of that by scanning and filling out the configuration for nearly every plugin, as well as any icon or description that may be missing. Since the majority are implemented in a standard way, this approach tends to "just work", but there are some edge cases described below. A separate configuration file is also provided to disable individual sections if needed.
+This optional extension takes care of that by scanning and filling out the configuration for nearly every plugin, as well as any icon or description that may be missing. Since the majority are implemented in a standard way, this approach tends to "just work", but there are some edge cases described below. A separate configuration file is provided to disable individual sections if needed.
 
 ## Known Issues
 
@@ -15,5 +15,8 @@ Please report any significant incompatibilities [here](https://github.com/6thmoo
 
 
 ## Version History
+
+#### `0.1.3`
+- Any plugin may opt out by including a `BepInDependency` on Risk of Options.
 
 #### `0.1.2` **- Initial Release**

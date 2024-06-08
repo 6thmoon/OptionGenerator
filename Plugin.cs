@@ -30,7 +30,7 @@ namespace Local.Option.Generator;
 [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID, DependencyFlags.HardDependency)]
 public class Plugin : BaseUnityPlugin
 {
-	public const string version = "0.1.2", identifier = "local.option.generator";
+	public const string version = "0.1.3", identifier = "local.option.generator";
 	static ConfigFile configuration; const string section = "Enabled";
 
 	protected void Awake()
@@ -41,8 +41,8 @@ public class Plugin : BaseUnityPlugin
 		RoR2Application.onLoad += ( ) =>
 		{
 			foreach ( PluginInfo info in Chainloader.PluginInfos.Values )
-				configuration.Bind(section, info.Metadata.GUID, true, "If option menu " +
-						"should be generated for \"" + info.Metadata.Name + "\".");
+				configuration.Bind(section, info.Metadata.GUID, true,
+						$"If option menu should be generated for \"{ info.Metadata.Name }\".");
 		};
 	}
 
@@ -61,24 +61,36 @@ public class Plugin : BaseUnityPlugin
 				continue;
 			}
 
-			foreach ( ConfigFile configuration in ScanForConfig(info.Instance) )
-				foreach ( ConfigDefinition definition in configuration.Keys )
-				{
-					ConfigEntryBase entry = configuration[definition];
-					if ( HasEntry(identifier, entry) )
-						continue;
-
-					BaseOption option = CreateOption(entry);
-					if ( option != null )
+			if ( CheckDependency(info) )
+			{
+				foreach ( ConfigFile configuration in ScanForConfig(info.Instance) )
+					foreach ( ConfigDefinition definition in configuration.Keys )
 					{
-						Settings.EnsureContainerExists(identifier, name);
-						Settings.AddOption(option, identifier, name);
+						ConfigEntryBase entry = configuration[definition];
+						if ( HasEntry(identifier, entry) )
+							continue;
+
+						BaseOption option = CreateOption(entry);
+						if ( option != null )
+						{
+							Settings.EnsureContainerExists(identifier, name);
+							Settings.AddOption(option, identifier, name);
+						}
 					}
-				}
+			}
 
 			LoadIcon(info);
 			SetDescription(info);
 		}
+	}
+
+	static bool CheckDependency(PluginInfo info)
+	{
+		foreach ( BepInDependency dependency in info.Dependencies )
+			if ( dependency.DependencyGUID is RiskOfOptions.PluginInfo.PLUGIN_GUID )
+				return false;
+
+		return true;
 	}
 
 	static IEnumerable<ConfigFile> ScanForConfig(BaseUnityPlugin instance)
