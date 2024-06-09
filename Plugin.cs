@@ -30,7 +30,7 @@ namespace Local.Option.Generator;
 [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID, DependencyFlags.HardDependency)]
 public class Plugin : BaseUnityPlugin
 {
-	public const string version = "0.1.3", identifier = "local.option.generator";
+	public const string version = "0.1.4", identifier = "local.option.generator";
 	static ConfigFile configuration; const string section = "Enabled";
 
 	protected void Awake()
@@ -86,6 +86,9 @@ public class Plugin : BaseUnityPlugin
 
 	static bool CheckDependency(PluginInfo info)
 	{
+		if ( info.Metadata.GUID is identifier )
+			return true;
+
 		foreach ( BepInDependency dependency in info.Dependencies )
 			if ( dependency.DependencyGUID is RiskOfOptions.PluginInfo.PLUGIN_GUID )
 				return false;
