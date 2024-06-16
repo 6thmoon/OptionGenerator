@@ -61,7 +61,7 @@ public class Plugin : BaseUnityPlugin
 				continue;
 			}
 
-			if ( CheckDependency(info) )
+			if ( info.Instance && CheckDependency(info) )
 			{
 				foreach ( ConfigFile configuration in ScanForConfig(info.Instance) )
 					foreach ( ConfigDefinition definition in configuration.Keys )
