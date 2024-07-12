@@ -1,6 +1,6 @@
 {
 	"name": "OptionGenerator",
-	"version_number": "0.1.4",
+	"version_number": "0.1.5",
 	"website_url": "https://github.com/6thmoon/OptionGenerator",
 	"description":
 		"Automatic settings/configuration menu integration via \"Risk of Options\".",

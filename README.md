@@ -2,7 +2,7 @@
 
 For more information please consult the **[Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options)** documentation. However, suffice to say it provides a convenient API for adding mod options to the in-game settings menu. While simple to use, much of the content on this site does not support it.
 
-This optional extension takes care of that by scanning and filling out the configuration for nearly every plugin, as well as any icon or description that may be missing. Since the majority are implemented in a standard way, this approach generally works, but there are some edge cases described below. A separate configuration file is provided to disable individual sections if needed.
+This optional extension takes care of that by scanning and filling out the configuration for nearly every plugin, as well as any icon or description that may be missing. Since the majority are implemented in a standard way, this approach generally works, but there are some limitations described below. A separate configuration file is provided to disable individual sections if needed.
 
 ## Known Issues
 
@@ -15,6 +15,9 @@ Please report any issues or significant incompatibilities [here](https://github.
 
 
 ## Version History
+
+#### `0.1.5`
+- Fix edge case that could occur if another plugin did not load properly or is destroyed.
 
 #### `0.1.4`
 - Now properly generates its' own option menu.
