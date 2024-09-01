@@ -132,7 +132,13 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 	}
 
 	public override BaseOptionConfig GetConfig() => configuration;
-	readonly BaseOptionConfig configuration = new();
+	readonly FieldConfig configuration = new();
+
+	class FieldConfig : NumericFieldConfig<T>
+	{
+		public override T Min { get; set; }
+		public override T Max { get; set; }
+	}
 }
 
 class ListOption(ConfigEntryBase entry, object[] list) : BaseOption, ITypedValueHolder<object>
