@@ -16,6 +16,9 @@ Please report any issues or significant incompatibilities [here](https://github.
 
 ## Version History
 
+#### `0.2.0`
+- Update for latest version `2.8.1` of **Risk of Options**.
+
 #### `0.1.5`
 - Fix edge case that could occur if another plugin did not load properly or is destroyed.
 
