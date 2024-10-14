@@ -13,7 +13,6 @@ This optional extension takes care of that by scanning and filling out the confi
 
 Please report any issues or significant incompatibilities [here](https://github.com/6thmoon/OptionGenerator/issues). Feel free to check out my other [work](https://thunderstore.io/package/6thmoon/?ordering=top-rated) as well.
 
-
 ## Version History
 
 #### `0.2.0`
@@ -26,6 +25,6 @@ Please report any issues or significant incompatibilities [here](https://github.
 - Now properly generates its' own option menu.
 
 #### `0.1.3`
-- Any plugin may opt out by including a `BepInDependency` on Risk of Options.
+- Any plugin may opt out by including a `BepInDependency` on **Risk of Options**.
 
 #### `0.1.2` **- Initial Release**

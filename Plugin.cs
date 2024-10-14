@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using RiskOfOptions.Components.Panel;
 using RiskOfOptions.Containers;
+using RiskOfOptions.Lib;
 using RiskOfOptions.Options;
 using RoR2;
 using SimpleJSON;
@@ -31,12 +32,19 @@ namespace Local.Option.Generator;
 public class Plugin : BaseUnityPlugin
 {
 	public const string version = "0.2.0", identifier = "local.option.generator";
+
 	static ConfigFile configuration; const string section = "Enabled";
+	static ConfigEntry<bool> indicator;
 
 	protected void Awake()
 	{
-		Harmony.CreateAndPatchAll(typeof(Plugin));
-		configuration = Config;
+		indicator = Config.Bind(
+				section: "General",
+				key: "Show Indicator",
+				defaultValue: true,
+				description: "Add a wrench icon to signify that option was automatically "
+					+ "generated, and may require a restart or have other limitations."
+			);
 
 		RoR2Application.onLoad += ( ) =>
 		{
@@ -44,6 +52,9 @@ public class Plugin : BaseUnityPlugin
 				configuration.Bind(section, info.Metadata.GUID, true,
 						$"If option menu should be generated for \"{ info.Metadata.Name }\".");
 		};
+
+		configuration = Config;
+		Harmony.CreateAndPatchAll(typeof(Plugin));
 	}
 
 	[HarmonyPatch(typeof(ModOptionPanelController), nameof(ModOptionPanelController.Start))]
@@ -73,7 +84,7 @@ public class Plugin : BaseUnityPlugin
 						BaseOption option = CreateOption(entry);
 						if ( option != null )
 						{
-							Settings.EnsureContainerExists(identifier, name);
+							AddPlugin(identifier, name);
 							Settings.AddOption(option, identifier, name);
 						}
 					}
@@ -133,6 +144,21 @@ public class Plugin : BaseUnityPlugin
 		catch ( KeyNotFoundException ) { }
 
 		return false;
+	}
+
+	static void AddPlugin(string identifier, string name)
+	{
+		if ( ! TryGetOption(identifier, out OptionCollection option) )
+		{
+			option = new OptionCollection(name, identifier);
+			Settings.OptionCollection[identifier] = option;
+
+			if ( indicator.Value )
+			{
+				string token = option.NameToken, translation = Language.GetString(token);
+				LanguageApi.Add(token, translation + " <sprite index=5 color=#0000007F>");
+			}
+		}
 	}
 
 	static BaseOption CreateOption(ConfigEntryBase entry)
