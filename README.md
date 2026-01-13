@@ -15,6 +15,10 @@ Please report any issues or significant incompatibilities [here](https://github.
 
 ## Version History
 
+#### `0.2.1`
+- Add indicator to differentiate auto-generated entries from others.
+- Minor improvement to load time.
+
 #### `0.2.0`
 - Update for latest version `2.8.1` of **Risk of Options**.
 

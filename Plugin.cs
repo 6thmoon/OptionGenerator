@@ -32,29 +32,24 @@ namespace Local.Option.Generator;
 public class Plugin : BaseUnityPlugin
 {
 	public const string version = "0.2.0", identifier = "local.option.generator";
-
 	static ConfigFile configuration; const string section = "Enabled";
-	static ConfigEntry<bool> indicator;
 
 	protected void Awake()
 	{
-		indicator = Config.Bind(
-				section: "General",
-				key: "Show Indicator",
-				defaultValue: true,
-				description: "Add a wrench icon to signify that option was automatically "
-					+ "generated, and may require a restart or have other limitations."
-			);
+		Harmony.CreateAndPatchAll(typeof(Plugin));
+		configuration = Config;
 
 		RoR2Application.onLoad += ( ) =>
 		{
 			foreach ( PluginInfo info in Chainloader.PluginInfos.Values )
 				configuration.Bind(section, info.Metadata.GUID, true,
 						$"If option menu should be generated for \"{ info.Metadata.Name }\".");
+
+			configuration.SaveOnConfigSet = true;
+			configuration.Save();
 		};
 
-		configuration = Config;
-		Harmony.CreateAndPatchAll(typeof(Plugin));
+		configuration.SaveOnConfigSet = false;
 	}
 
 	[HarmonyPatch(typeof(ModOptionPanelController), nameof(ModOptionPanelController.Start))]
@@ -153,10 +148,10 @@ public class Plugin : BaseUnityPlugin
 			option = new OptionCollection(name, identifier);
 			Settings.OptionCollection[identifier] = option;
 
-			if ( indicator.Value )
+			if ( identifier.Split('.').First() is not "local" )
 			{
 				string token = option.NameToken, translation = Language.GetString(token);
-				LanguageApi.Add(token, translation + " <sprite index=5 color=#0000007F>");
+				LanguageApi.Add(token, translation + "<color=#FFFFFF7F>*</color>");
 			}
 		}
 	}
