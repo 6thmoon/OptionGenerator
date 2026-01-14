@@ -7,6 +7,7 @@ using RiskOfOptions.Containers;
 using RiskOfOptions.Lib;
 using RiskOfOptions.Options;
 using RoR2;
+using RoR2.UI;
 using SimpleJSON;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Security.Permissions;
 using UnityEngine;
+using UnityEngine.UI;
 using Console = System.Console;
 using DependencyFlags = BepInEx.BepInDependency.DependencyFlags;
 using Language = RoR2.Language;
@@ -31,7 +33,7 @@ namespace Local.Option.Generator;
 [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID, DependencyFlags.HardDependency)]
 public class Plugin : BaseUnityPlugin
 {
-	public const string version = "0.2.0", identifier = "local.option.generator";
+	public const string version = "0.2.1", identifier = "local.option.generator";
 	static ConfigFile configuration; const string section = "Enabled";
 
 	protected void Awake()
@@ -45,8 +47,8 @@ public class Plugin : BaseUnityPlugin
 				configuration.Bind(section, info.Metadata.GUID, true,
 						$"If option menu should be generated for \"{ info.Metadata.Name }\".");
 
-			configuration.SaveOnConfigSet = true;
 			configuration.Save();
+			configuration.SaveOnConfigSet = true;
 		};
 
 		configuration.SaveOnConfigSet = false;
@@ -309,7 +311,7 @@ public class Plugin : BaseUnityPlugin
 	[HarmonyPatch(typeof(ModOptionPanelController),
 			nameof(ModOptionPanelController.LoadOptionListFromCategory))]
 	[HarmonyTranspiler]
-	static IEnumerable<CodeInstruction> Transpile(IEnumerable<CodeInstruction> IL)
+	static IEnumerable<CodeInstruction> CheckType(IEnumerable<CodeInstruction> IL)
 	{
 		foreach ( CodeInstruction instruction in IL )
 		{
@@ -370,4 +372,32 @@ public class Plugin : BaseUnityPlugin
 		},
 		_ => false
 	};
+
+	[HarmonyPatch(typeof(ModListButton), nameof(ModListButton.Start))]
+	[HarmonyPrefix]
+	static void UseColorBlock(ModListButton __instance)
+	{
+		foreach ( var button in __instance.GetComponents<Button>() )
+			button.colors = __instance.colors;
+	}
+
+	[HarmonyPatch(typeof(ModListButton), nameof(ModListButton.OnSelect))]
+	[HarmonyPrefix]
+	static void ShowInOptionPanel(ModListButton __instance)
+	{
+		if ( __instance.descriptionLabel.isActiveAndEnabled )
+			return;
+
+		var controller = __instance.GetComponentInParent<ModOptionPanelController>();
+		if ( ! controller ) return;
+
+		var panel = controller._panel?.ModOptionsDescriptionPanel;
+		if ( ! panel ) return;
+
+		var text = panel.GetComponentInChildren<HGTextMeshProUGUI>();
+		if ( ! text ) return;
+
+		if ( text.isActiveAndEnabled )
+			__instance.descriptionLabel = text;
+	}
 }

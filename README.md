@@ -18,6 +18,7 @@ Please report any issues or significant incompatibilities [here](https://github.
 #### `0.2.1`
 - Add indicator to differentiate auto-generated entries from others.
 - Minor improvement to load time.
+- Fix for button highlight and description not appearing on hover.
 
 #### `0.2.0`
 - Update for latest version `2.8.1` of **Risk of Options**.
