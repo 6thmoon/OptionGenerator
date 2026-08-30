@@ -44,6 +44,8 @@ abstract class Option<T>(ConfigEntry<T> entry) : BaseOption, ITypedValueHolder<T
 		}
 
 		field.formatString ??= "{0}";
+		field.modifiedIndicator = obj.GetComponentInChildren<RawImage>();
+
 		return obj;
 	}
 

@@ -199,8 +199,8 @@ class SingleSliderOption(ConfigEntry<float> entry) : SliderOption(entry, Initial
 		}
 
 		if ( config.min is -50 or 0 or 50 && config.max is 50 or 100 or 150 or 200 )
-			config.formatString = "{0:0.0}" + '%';
-		else config.formatString = "{0:0.00}";
+			config.FormatString = "{0:0.0}" + '%';
+		else config.FormatString = "{0:0.00}";
 
 		return config;
 	}

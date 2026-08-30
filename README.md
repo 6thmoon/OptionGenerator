@@ -11,25 +11,25 @@ This optional extension takes care of that by scanning and filling out the confi
 - The following types are not supported: `Vector2`, `Vector3`, `Vector4`, `Quaternion`, and `Rect`.
 - In some circumstances modifying a configuration value at runtime could break associated functionality - while this is not typically expected, you have been warned.
 
-Please report any issues or significant incompatibilities [here](https://github.com/6thmoon/OptionGenerator/issues). Feel free to check out my other [work](https://thunderstore.io/package/6thmoon/?ordering=top-rated) as well.
+Please report any issues or significant incompatibilities [here](https://github.com/6thmoon/OptionGenerator/issues). Feel free to check out my other [work](https://thunderstore.io/c/riskofrain2/p/6thmoon/?deprecated=true&ordering=most-downloaded) as well.
 
 ## Version History
+
+#### `0.2.2`
+- Small fix for default value indicator not being populated with version `2.8.6` of **Risk of Options**.
 
 #### `0.2.1`
 - Add indicator to differentiate auto-generated entries from others.
 - Minor improvement to load time.
-- Fix for button highlight and description not appearing on hover.
+- Show button highlight and description on hover.
 
 #### `0.2.0`
 - Update for latest version `2.8.1` of **Risk of Options**.
 
 #### `0.1.5`
-- Fix edge case that could occur if another plugin did not load properly or is destroyed.
+- Handle edge case that could occur if another plugin did not load properly or is destroyed.
 
-#### `0.1.4`
-- Now properly generates its' own option menu.
-
-#### `0.1.3`
+#### `0.1.3`, `0.1.4`
 - Any plugin may opt out by including a `BepInDependency` on **Risk of Options**.
 
 #### `0.1.2` **- Initial Release**

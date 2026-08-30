@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>12.0</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
@@ -9,14 +9,14 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.BaseLib" Version="5.4.21" />
     <PackageReference Include="HarmonyX" Version="2.10.2" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.4-r.0" />
-    <PackageReference Include="UnityEngine.Modules" Version="[2019.4.37]" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.1-r.0" />
+    <PackageReference Include="UnityEngine.Modules" Version="[2021.3.33]" />
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.2" />
+    <PackageReference Include="Rune580-Risk_Of_Options" Version="2.8.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="RiskOfOptions">
-      <HintPath>Resources/RiskOfOptions.dll</HintPath>
-    </Reference>
+    <Publicize Include="RiskOfOptions" />
     <Reference Include="SimpleJSON">
       <HintPath>Resources/SimpleJSON.dll</HintPath>
     </Reference>

@@ -33,7 +33,7 @@ namespace Local.Option.Generator;
 [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID, DependencyFlags.HardDependency)]
 public class Plugin : BaseUnityPlugin
 {
-	public const string version = "0.2.1", identifier = "local.option.generator";
+	public const string version = "0.2.2", identifier = "local.option.generator";
 	static ConfigFile configuration; const string section = "Enabled";
 
 	protected void Awake()
